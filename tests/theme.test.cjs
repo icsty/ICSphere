@@ -20,61 +20,31 @@ function boot({ saved = null, dark = false, blocked = false } = {}) {
   return { store: window.icsphereTheme, classes, media, events, writes, storage }
 }
 
-test('first paint uses the system preference when no valid setting exists', () => {
-  for (const saved of [null, 'invalid']) {
-    const h = boot({ saved, dark: true })
-    assert.equal(h.store.getPreference(), 'system')
-    assert.ok(h.classes.has('dark'))
-    assert.ok(!h.classes.has('light'))
+test('first paint is dark regardless of saved preference, system theme, or blocked storage', () => {
+  for (const saved of [null, 'invalid', 'light', 'system', 'dark']) {
+    for (const dark of [false, true]) {
+      for (const blocked of [false, true]) {
+        const h = boot({ saved, dark, blocked })
+        assert.equal(h.store.getPreference(), 'dark')
+        assert.ok(h.classes.has('dark'))
+        assert.ok(!h.classes.has('light'))
+      }
+    }
   }
 })
 
-test('saved manual preference overrides system at startup', () => {
-  const h = boot({ saved: 'light', dark: true })
-  assert.ok(h.classes.has('light'))
-  assert.equal(h.store.getPreference(), 'light')
-})
-
-test('theme changes persist and notify subscribers; unsubscribe works', () => {
-  const h = boot()
-  let count = 0
-  const unsubscribe = h.store.subscribe(() => { count++ })
-  h.store.setPreference('dark')
-  assert.ok(h.classes.has('dark'))
-  assert.deepEqual(h.writes[0], ['icsphere.theme', 'dark'])
-  assert.equal(count, 1)
+test('theme switching is disabled while the portal uses a fixed dark presentation', () => {
+  const h = boot({ saved: 'light' })
+  for (const preference of ['light', 'system', 'dark']) {
+    h.store.setPreference(preference)
+    assert.equal(h.store.getPreference(), 'dark')
+    assert.ok(h.classes.has('dark'))
+  }
+  assert.equal(h.writes.length, 0)
+  assert.equal(h.events.system, undefined)
+  assert.equal(h.events.storage, undefined)
+  const unsubscribe = h.store.subscribe(() => assert.fail('A fixed theme must not emit changes'))
   unsubscribe()
-  h.store.setPreference('light')
-  assert.equal(count, 1)
-  assert.ok(h.classes.has('light'))
-})
-
-test('system changes apply only while System is selected', () => {
-  const h = boot()
-  h.media.matches = true
-  h.events.system()
-  assert.ok(h.classes.has('dark'))
-  h.store.setPreference('light')
-  h.events.system()
-  assert.ok(h.classes.has('light'))
-  h.store.setPreference('system')
-  assert.ok(h.classes.has('dark'))
-})
-
-test('blocked storage still allows in-memory theme switching', () => {
-  const h = boot({ blocked: true })
-  h.store.setPreference('dark')
-  assert.equal(h.store.getPreference(), 'dark')
-  assert.ok(h.classes.has('dark'))
-})
-
-test('other tabs synchronize preferences and clearing storage restores System', () => {
-  const h = boot({ saved: 'light', dark: true })
-  h.events.storage({ key: 'icsphere.theme', newValue: 'dark', storageArea: h.storage })
-  assert.equal(h.store.getPreference(), 'dark')
-  h.events.storage({ key: null, newValue: null, storageArea: h.storage })
-  assert.equal(h.store.getPreference(), 'system')
-  assert.ok(h.classes.has('dark'))
 })
 
 function luminance(hex) {

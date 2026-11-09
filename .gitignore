@@ -24,4 +24,9 @@ dist-ssr
 *.sw?
 
 .env
+.env.*
+.venv/
+.runtime/
+__pycache__/
 supabase/.temp/
+output/registration/

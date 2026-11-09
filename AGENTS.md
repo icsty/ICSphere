@@ -33,7 +33,7 @@ Use the established technology stack:
 | Database | Supabase PostgreSQL |
 | File Storage | Supabase Storage |
 | Authentication | Google OAuth |
-| OCR | PaddleOCR |
+| Automated document extraction | Not configured |
 | AI Integration | OpenRouter |
 | Background Scheduling | cron-job.org |
 | Notifications | Web Push |
@@ -57,11 +57,11 @@ Use the established technology stack:
 - Google OAuth authentication.
 - Registration onboarding for new students.
 - Registration form upload.
-- PaddleOCR eligibility screening.
+- Administrator review of registration documents.
 - Administrator approval before account activation.
 - Academic-focused student profiles.
 
-OCR results must not automatically grant student access.
+Document checks must not automatically grant student access.
 
 ### Student Dashboard
 
@@ -73,7 +73,7 @@ OCR results must not automatically grant student access.
 ### My Schedule
 
 - Display academic schedules.
-- Preserve original OCR-extracted values.
+- Preserve original submitted academic values.
 - Allow controlled schedule corrections.
 - Detect overlapping classes.
 - Allow overlap acknowledgment when appropriate.
@@ -228,6 +228,8 @@ These rules supersede earlier provisional visual palettes. Apply them to all pag
 - **Landing presentation:** use the editorial academic composition: a typographic opening, asymmetric schedule/announcements spread, visible enrollment/resource articles, vertical access steps, and direct closing sign-in. No feature tabs or invented academic records. The landing may use `--text-display` (40–64px responsive hero) and `--text-feature` (32px section headings), with 96px desktop and 56px mobile section spacing. Application screen titles retain the 30px scale. Use neutral borders; reserve blue focus outlines for accessibility. Do not add colored border accents.
 - **Startup splash:** initial markup outside the React root in `index.html` uses semantic theme tokens with native Canvas/CanvasText fallbacks. Animate only the indeterminate loading line; never show fake percentage progress. Keep the React root inert until dismissal. App mount emits `icsphere:ready`; `public/boot.js` fades the splash out over 180ms and releases the page, without a minimum display delay or auth dependency. Reduced motion disables the loading animation and skips the exit transition. Reveal recovery instructions and reload after 12 seconds if the app never mounts.
 - **Icons:** Lucide React only; default 18px, small 16px, large 20–24px, consistent 1.75 stroke. Use icons for functional meaning; hide redundant icons from assistive technology and label icon-only controls.
+- **Header/responsive navigation:** keep brand, centered text-only desktop navigation, and right-side theme/account actions in separate groups. Theme toggles show visible Light/Dark/System labels rather than ambiguous icon-only choices. Use a solid primary sign-in button. At mobile widths, place brand/theme controls on the first row and academic/access/account navigation on the second; at intermediate widths, center navigation beneath the brand/actions row. Use functional Lucide glyphs for student destinations, not decorative landing navigation icons. Student navigation may scroll within its mobile row; the document itself must not overflow horizontally.
+- **Applicant boundary:** onboarding and verification use `ApplicantLayout`, not the approved-student workspace shell. Show only registration, application status, theme controls, and sign-out. Build onboarding, administrator review, and the student dashboard sequentially against verified persistent data; do not introduce disconnected dashboard placeholders or simulate upload/submission/approval success.
 - **Motion/accessibility:** use 150–200ms property-specific hover/focus transitions; panel transitions only when useful, 200–250ms. Respect reduced motion. Maintain WCAG AA text/control contrast, semantic HTML, labels, keyboard operation, visible focus, and responsive behavior. Preserve sticky-header focus offsets. Test both themes and all three preferences; do not equate build success with browser or accessibility verification.
 
 ## 8. Coding Standards

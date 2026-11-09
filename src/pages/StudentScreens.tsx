@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { AuthState } from '../hooks/useAuth'
+import { Onboarding, Verification } from './ApplicantScreens'
 
 function PageHeading({ title, description }: { title: string; description: string }) {
   return <header className="page-heading"><p className="section-kicker">Student workspace</p><h1>{title}</h1><p>{description}</p></header>
@@ -8,36 +9,6 @@ function PageHeading({ title, description }: { title: string; description: strin
 
 function EmptyState({ title, children }: { title: string; children: ReactNode }) {
   return <div className="empty-state"><h3>{title}</h3><p>{children}</p></div>
-}
-
-export function Onboarding({ auth, preview }: { auth: AuthState; preview: boolean }) {
-  const [name, setName] = useState('')
-  const [number, setNumber] = useState('')
-  return <>
-    <PageHeading title="Let’s start with you." description="Your registration connects your Google account to your academic details. Administrator approval comes after document screening." />
-    <div className="screen-columns">
-      <section className="form-panel" aria-labelledby="details-heading">
-        <h2 id="details-heading">Student details</h2>
-        <p className="muted">Draft only. Details entered here are not saved or submitted.</p>
-        <div className="form-fields">
-          <dl className="onboarding-account"><dt>Google account</dt><dd>{auth.session?.user.email || (preview ? 'No account in preview' : 'No email available')}</dd></dl>
-          <label htmlFor="student-name">Full name<input id="student-name" autoComplete="name" value={name} onChange={event => setName(event.target.value)} placeholder="As shown on your registration form" /></label>
-          <label htmlFor="student-number">Student number<input id="student-number" autoComplete="off" value={number} onChange={event => setNumber(event.target.value)} placeholder="Your RTU student number" /></label>
-          <dl className="onboarding-account"><dt>Program</dt><dd>Bachelor of Science in Information Technology</dd></dl>
-        </div>
-        <div className="document-placeholder"><h3>Registration or assessment form</h3><p>Document submission will open when private uploads and eligibility screening are connected. Do not send documents through other parts of this portal.</p><button className="secondary-button" disabled>Document upload not yet available</button></div>
-        <a className="text-link" href={`${preview ? '/preview' : ''}/verification`}>View verification status</a>
-      </section>
-      <aside className="context-panel"><h2>Before you continue</h2><p>Your registration form will be used to screen BSIT eligibility and extract your schedule.</p><ol className="plain-steps"><li>Review your academic details.</li><li>Submit a legible registration form when uploads open.</li><li>Wait for an administrator’s decision.</li></ol><p>Signing in and passing document screening do not automatically activate student access.</p></aside>
-    </div>
-  </>
-}
-
-export function Verification({ preview }: { preview: boolean }) {
-  return <><PageHeading title="Verification status" description="Follow your application from document submission to administrator review." />
-    <section className="status-summary"><span className="status-label">No application submitted</span><h2>Your registration has not been submitted.</h2><p>Document submission is not open yet. There is no review decision to display, and student access has not been confirmed.</p><a className="secondary-button" href={`${preview ? '/preview' : ''}/onboarding`}>Return to registration</a></section>
-    <ol className="verification-timeline"><li><h3>Registration details</h3><p>Prepare your details and registration form.</p></li><li><h3>Document screening</h3><p>Not started. Screening checks eligibility; it does not approve an account.</p></li><li><h3>Administrator review</h3><p>Not started. An administrator must review the application before access is granted.</p></li></ol>
-  </>
 }
 
 function Dashboard() {

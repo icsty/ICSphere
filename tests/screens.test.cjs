@@ -27,12 +27,32 @@ function load(file, globals = {}) {
 const { resolveScreen, readRoute } = load('src/lib/navigation.ts')
 const { default: LandingPage } = load('src/pages/LandingPage.tsx')
 const { StudentScreen } = load('src/pages/StudentScreens.tsx')
+const { ApplicantLayout } = load('src/components/ApplicantLayout.tsx')
+const { Onboarding, Verification } = load('src/pages/ApplicantScreens.tsx')
 const auth = { session: null, loading: false, action: null, configured: true, message: '', signIn() {}, signOut() {} }
 
 test('all academic routes remain restricted to signed-in but unverified users', () => {
   for (const path of ['/dashboard', '/schedule', '/announcements', '/enrollment', '/resources', '/profile']) {
     assert.equal(resolveScreen(path, false, true).access, 'restricted')
     assert.equal(resolveScreen(path, false, false).access, 'signin')
+  }
+})
+
+test('trusted approval unlocks student routes while administrator review requires an administrator', () => {
+  assert.equal(resolveScreen('/dashboard', false, true, true, false).access, 'screen')
+  assert.equal(resolveScreen('/admin/registrations', false, true, true, false).access, 'restricted')
+  assert.equal(resolveScreen('/admin/registrations', false, true, false, true).access, 'screen')
+  assert.equal(resolveScreen('/admin/registrations', true, false).access, 'signin')
+})
+
+test('saved application states expose the corresponding action without inventing approval', () => {
+  for (const status of ['pending','approved','rejected','deactivated']) {
+    const registration={data:{application:{status,personal:{studentNumber:'2020-000001'},submitted_at:'2026-01-01',review_reason:status==='rejected' ? 'Provide a readable official form.':null}},loading:false,error:'',refresh(){}}
+    const html=renderToStaticMarkup(createElement(Verification,{preview:false,auth,registration}))
+    assert.match(html,new RegExp(`registration-status--${status}`))
+    assert.equal(/href="\/dashboard"/.test(html),status==='approved')
+    assert.equal(/href="\/onboarding"/.test(html),status==='rejected')
+    if(status==='rejected')assert.match(html,/Provide a readable official form/)
   }
 })
 
@@ -50,11 +70,40 @@ test('onboarding and verification require sign-in outside previews', () => {
   }
 })
 
+test('applicant layout exposes registration and status without academic navigation', () => {
+  const html = renderToStaticMarkup(createElement(ApplicantLayout, { auth, path: '/onboarding', preview: false }, createElement(StudentScreen, { path: '/onboarding', auth, preview: false })))
+  assert.match(html, /Complete your student registration/)
+  assert.match(html, /href="\/verification"/)
+  assert.doesNotMatch(html, /href="\/(?:dashboard|schedule|announcements|enrollment|resources|profile)"/)
+  assert.doesNotMatch(html, /Academic workspace|Student workspace|workspace-sidebar|Document upload not yet available/)
+  assert.match(html, /<dt>Google account<\/dt><dd>/)
+  assert.match(html, /<dt>Program<\/dt><dd>/)
+})
+
 test('clean pathname routes support direct links and trailing slashes', () => {
   assert.equal(readRoute('/'), '/')
   assert.equal(readRoute('/schedule/'), '/schedule')
   assert.equal(readRoute('/preview/dashboard'), '/preview/dashboard')
   assert.equal(readRoute('/unknown'), '/unknown')
+})
+
+test('student registration blocks accounts outside the supplied institutional email format', () => {
+  const html = renderToStaticMarkup(createElement(Onboarding, {
+    auth: { ...auth, session: { user: { email: 'student@example.com' } } }, preview: false,
+  }))
+  assert.match(html, /Use your RTU student account/)
+  assert.doesNotMatch(html, /id="student-name"|id="student-number"/)
+})
+
+test('institutional accounts see the registration fields and the actual program code', () => {
+  const html = renderToStaticMarkup(createElement(Onboarding, {
+    auth: { ...auth, session: { user: { email: '2020-000001@rtu.edu.ph' } } }, preview: false,
+  }))
+  for (const field of ['lastName','firstName','middleName','suffix']) assert.match(html, new RegExp(`id="student-${field}"`))
+  assert.doesNotMatch(html, /id="student-name"/)
+  assert.match(html, /id="student-number"/)
+  assert.match(html, /BSINFOTECH/)
+  assert.doesNotMatch(html, /type="file"|Application submitted|Application approved/)
 })
 
 test('navigation uses browser history and emits route updates without fragments', () => {
@@ -123,6 +172,7 @@ test('theme buttons expose the selected preference and call the shared controlle
     const label = `${value[0].toUpperCase()}${value.slice(1)} theme`
     const button = findElement(tree, node => node.props?.['aria-label'] === label)
     assert.equal(button.type, 'button')
+    assert.equal(button.props.children, label.replace(' theme', ''))
     assert.equal(button.props['aria-pressed'], value === 'dark')
     button.props.onClick()
   }
@@ -133,7 +183,7 @@ test('editorial landing exposes all four tools without tabs or hidden panels', (
   const html = renderToStaticMarkup(createElement(LandingPage, { auth }));
   for (const title of ['My Schedule', 'Announcements', 'Enrollment Information', 'Academic Resources']) assert.ok(html.includes(title));
   assert.doesNotMatch(html, /role="tab(?:list|panel)?"/);
-  assert.match(html, /These features are not available yet/);
+  assert.match(html, /An administrator must review your application/);
 });
 
 test('closing sign-in calls OAuth directly', () => {

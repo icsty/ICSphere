@@ -17,14 +17,15 @@ export function navigate(path: string, replace = false) {
   window.dispatchEvent(new PopStateEvent('popstate'))
 }
 
-export function resolveScreen(route: string, development: boolean, signedIn: boolean) {
+export function resolveScreen(route: string, development: boolean, signedIn: boolean, approved = false, administrator = false) {
   const preview = development && route.startsWith('/preview/')
   const path = preview ? route.slice('/preview'.length) : route
-  const known = ['/onboarding', '/verification', ...studentPages.map(page => page.path)].includes(path)
+  const known = ['/onboarding', '/verification', '/admin/registrations', ...studentPages.map(page => page.path)].includes(path)
   if (!known) return { path, preview: false, access: 'missing' as const }
-  if (preview) return { path, preview, access: 'screen' as const }
+  if (preview && path !== '/admin/registrations') return { path, preview, access: 'screen' as const }
   if (!signedIn) return { path, preview, access: 'signin' as const }
   if (path === '/onboarding' || path === '/verification') return { path, preview, access: 'screen' as const }
-  // No trusted approval source is connected yet. A Google session never unlocks student screens.
+  if (path === '/admin/registrations' && administrator) return { path, preview: false, access: 'screen' as const }
+  if (path !== '/admin/registrations' && approved) return { path, preview, access: 'screen' as const }
   return { path, preview, access: 'restricted' as const }
 }

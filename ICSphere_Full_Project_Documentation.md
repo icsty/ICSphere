@@ -1,5 +1,7 @@
 # ICSphere — Full Project Documentation
 
+> **Implementation update — 2026-11-09:** Automatic document processing and its runtime/setup dependencies have been removed. New registration submissions are paused while the replacement document workflow is decided. Existing applications, administrator review, and applied database history are preserved. Scanner-specific requirements below are historical planning material, superseded by [the current README](README.md) and [registration state](docs/registration-setup.md); they are not installation instructions or active dependencies.
+
 **Project title:** ICSphere: An Integrated Student Portal with AI Chatbot Assistance for the Institute of Computer Studies of Rizal Technological University  
 **Project type:** Student-developed academic information portal  
 **Primary audience:** BS Information Technology students of the Institute of Computer Studies (ICS), Rizal Technological University (RTU)  

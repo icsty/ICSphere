@@ -1,6 +1,6 @@
 /* ICSphere Design System v1.0 — the single source of visual tokens. */
 :root {
-  --ics-navy: #262535;
+  --ics-navy: #10182B;
   --ics-blue: #274CFF;
   --ics-gold: #FFC123;
   --gray-50: #F8FAFC;
@@ -40,7 +40,8 @@
   --warning-subtle: #FEFCE8;
   --info: #1E40AF;
   --info-subtle: #EFF6FF;
-  --font-family-sans: 'Geist Variable', 'Segoe UI', sans-serif;
+  --font-family-sans: 'Hanken Grotesk', 'Segoe UI', sans-serif;
+  --font-family-heading: 'Montserrat', 'Segoe UI', sans-serif;
   --font-family-mono: 'Geist Mono Variable', ui-monospace, monospace;
   --text-page: 30px;
   --text-display: clamp(40px, 5vw, 64px);
@@ -75,14 +76,14 @@
 }
 
 :root.dark {
-  --background: #11121A;
-  --surface: #1C1D29;
-  --surface-muted: #242633;
+  --background: #080D19;
+  --surface: var(--ics-navy);
+  --surface-muted: #172238;
   --foreground: #F8FAFC;
-  --muted-foreground: #A1A1B5;
-  --secondary-foreground: #BFC2D1;
-  --border: #353645;
-  --input-border: #73768A;
+  --muted-foreground: #A7B4CA;
+  --secondary-foreground: #C0CBDE;
+  --border: #2B3850;
+  --input-border: #73829D;
   --primary: #5470FF;
   --primary-foreground: #FFFFFF;
   /* Darker solid fill keeps white 14px button labels above 4.5:1. */
@@ -101,24 +102,4 @@
   --info-subtle: #202F48;
   --shadow-popover: 0 8px 24px #00000033;
   color-scheme: dark;
-}
-
-@theme inline {
-  --font-sans: var(--font-family-sans);
-  --font-mono: var(--font-family-mono);
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-foreground: var(--foreground);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-accent: var(--accent);
-  --color-danger: var(--danger);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-info: var(--info);
-  --radius-ui: var(--radius-control);
-  --radius-card: var(--radius-panel);
 }
